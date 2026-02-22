@@ -1,24 +1,38 @@
-<nav class="navbar">
-  <div class="logo">GAME<span>HUB</span></div>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Buscar 5.000+ jogos...">
-  </div>
-</nav>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Site de Jogos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="categories">
-  <button class="cat-btn active" data-genre="all">Todos</button>
-  <button class="cat-btn" data-genre="1">Ação</button>
-  <button class="cat-btn" data-genre="2">Aventura</button>
-  <button class="cat-btn" data-genre="3">Puzzle</button>
-</div>
+    <nav class="navbar">
+      <div class="logo">GAME<span>HUB</span></div>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar 5.000+ jogos...">
+      </div>
+    </nav>
 
-<main class="game-grid" id="gameGrid">
-  <div class="loader">Carregando jogos...</div>
-</main>
+    <div class="categories">
+      <button class="cat-btn active" data-genre="all">Todos</button>
+      <button class="cat-btn" data-genre="1">Ação</button>
+      <button class="cat-btn" data-genre="2">Aventura</button>
+      <button class="cat-btn" data-genre="3">Puzzle</button>
+    </div>
 
-<div id="gameModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <iframe id="gameFrame" src="" frameborder="0" allowfullscreen></iframe>
-  </div>
-</div>
+    <main class="game-grid" id="gameGrid">
+      <div class="loader">Carregando jogos...</div>
+    </main>
+
+    <div id="gameModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <iframe id="gameFrame" src="" frameborder="0" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
