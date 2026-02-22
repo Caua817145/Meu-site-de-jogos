@@ -3,243 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameHub - GitHub Style</title>
+    <title>GameHub - Google H5 Ads Edition</title>
     
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-SEU_PUBLISHER_ID" crossorigin="anonymous"></script>
+    <script>
+        window.adsbygoogle = window.adsbygoogle || [];
+        const adBreak = adConfig = function(o) {adsbygoogle.push(o);}
+    </script>
+
     <style>
         :root {
             --bg-dark: #0d1117;
             --nav-bg: #161b22;
-            --card-bg: #161b22;
             --border-color: #30363d;
-            --text-main: #c9d1d9;
             --text-link: #58a6ff;
-            --accent: #238636;
+            --text-main: #c9d1d9;
         }
-
-        body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 5%;
-            background: var(--nav-bg);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
+        body { background: var(--bg-dark); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 5%; background: var(--nav-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
         .logo { font-weight: bold; font-size: 1.2rem; }
         .logo span { color: var(--text-link); }
-
-        .search-bar input {
-            padding: 8px 14px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-dark);
-            color: white;
-            width: 250px;
-            font-size: 14px;
-        }
-
-        /* Categorias */
-        .categories {
-            display: flex;
-            gap: 10px;
-            padding: 15px 5%;
-            border-bottom: 1px solid var(--border-color);
-            overflow-x: auto;
-            background: var(--bg-dark);
-        }
-
-        .cat-btn {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid transparent;
-            padding: 6px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-size: 14px;
-        }
-
-        .cat-btn.active {
-            border-bottom: 2px solid #f78166;
-            border-radius: 0;
-            font-weight: 600;
-        }
-
-        /* Grid de Jogos */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-            padding: 25px 5%;
-        }
-
-        .game-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .game-card:hover { 
-            transform: translateY(-5px);
-            border-color: #8b949e; 
-        }
-
-        .game-card img { 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            object-fit: cover; 
-        }
-
-        .game-info { padding: 12px; }
-        .game-info strong { 
-            color: var(--text-link); 
-            display: block; 
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Modal Player */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; }
-        .modal-content { width: 100%; height: 100%; position: relative; }
+        .search-bar input { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: white; width: 250px; }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding: 25px 5%; }
+        .game-card { background: var(--nav-bg); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; cursor: pointer; transition: 0.2s; }
+        .game-card:hover { transform: translateY(-5px); border-color: #8b949e; }
+        .game-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .game-info { padding: 10px; font-size: 0.9rem; text-align: center; }
+        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
         #gameFrame { width: 100%; height: 100%; border: none; }
-        .close-btn { 
-            position: absolute; 
-            top: 15px; 
-            right: 25px; 
-            font-size: 40px; 
-            color: white; 
-            cursor: pointer; 
-            z-index: 1001;
-        }
-
-        .loader { grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-link); }
+        .close-btn { position: absolute; top: 15px; right: 25px; font-size: 40px; color: white; cursor: pointer; z-index: 1001; }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="logo">GAME<span>HUB</span></div>
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Buscar em 5.000+ jogos...">
-    </div>
+    <div class="logo">GAME<span>HUB</span> (H5 Ads)</div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Buscar jogos..."></div>
 </nav>
 
-<div class="categories">
-    <button class="cat-btn active" data-genre="all">Todos</button>
-    <button class="cat-btn" data-genre="1">Ação</button>
-    <button class="cat-btn" data-genre="2">Aventura</button>
-    <button class="cat-btn" data-genre="3">Puzzle</button>
-</div>
-
 <main class="game-grid" id="gameGrid">
-    <div class="loader">Conectando à API da GamePix...</div>
+    <p>Carregando jogos com Google Ads...</p>
 </main>
 
 <div id="gameModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <iframe id="gameFrame" src="" frameborder="0" allowfullscreen></iframe>
+    <span class="close-btn">&times;</span>
+    <div style="height: 100%; width: 100%;" id="container">
+        <iframe id="gameFrame" src="" allowfullscreen></iframe>
     </div>
 </div>
 
 <script>
-    const SID = 'E440O';
-    const API_URL = `https://games.gamepix.com/games?sid=${SID}&order=popular`;
-    
+    // Configuração do Google H5 Ads
+    adConfig({
+        preloadAdBreaks: 'on',
+        onReady: () => { console.log('H5 Ads Ready'); },
+    });
+
     const grid = document.getElementById('gameGrid');
-    let allGames = [];
+    
+    // Como você não usa mais GamePix, aqui você deve listar seus próprios jogos ou de outra fonte H5
+    const games = [
+        { title: "Exemplo Jogo 1", url: "URL_DO_JOGO_H5", thumb: "https://via.placeholder.com/150" },
+        // Adicione seus jogos aqui
+    ];
 
-    async function fetchGames() {
-        try {
-            const response = await fetch(API_URL, {
-                method: 'GET',
-                mode: 'cors'
-            });
-            const data = await response.json();
-            
-            if(data && data.data) {
-                allGames = data.data;
-                displayGames(allGames);
-            } else {
-                grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Erro ao carregar dados.</p>";
-            }
-        } catch (error) {
-            console.error("Erro na API:", error);
-            grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #ff7b72;'>Erro de conexão com a GamePix. Verifique se o SID está correto.</p>";
-        }
-    }
-
-    function displayGames(games) {
+    function displayGames() {
         grid.innerHTML = '';
-        games.slice(0, 100).forEach(game => {
+        games.forEach(game => {
             const card = document.createElement('div');
             card.className = 'game-card';
-            
-            // Adiciona o SID na URL do jogo para o player
-            const gameUrlWithSid = game.url + (game.url.includes('?') ? '&' : '?') + `sid=${SID}`;
-            
-            card.onclick = () => openGame(gameUrlWithSid);
-            card.innerHTML = `
-                <img src="${game.thumbnailUrl}" alt="${game.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=Jogo'">
-                <div class="game-info">
-                    <strong>${game.title}</strong>
-                    <div style="font-size: 11px; color: #8b949e; margin-top: 4px;">
-                        <span style="color: #238636;">●</span> Grátis
-                    </div>
-                </div>
-            `;
+            card.onclick = () => launchGame(game.url);
+            card.innerHTML = `<img src="${game.thumb}"> <div class="game-info"><strong>${game.title}</strong></div>`;
             grid.appendChild(card);
         });
     }
 
-    function openGame(url) {
-        const modal = document.getElementById('gameModal');
-        const frame = document.getElementById('gameFrame');
-        frame.src = url;
-        modal.style.display = "block";
-        document.body.style.overflow = "hidden";
+    function launchGame(url) {
+        // Antes de abrir o jogo, o Google tenta mostrar um anúncio (Ad Break)
+        adBreak({
+            type: 'start',
+            name: 'inicio-do-jogo',
+            beforeAd: () => { console.log('Anúncio vai começar'); },
+            afterAd: () => { openModal(url); }, // Abre o jogo após o anúncio
+            adBreakDone: () => { openModal(url); } // Abre o jogo se não houver anúncio disponível
+        });
+    }
+
+    function openModal(url) {
+        document.getElementById('gameFrame').src = url;
+        document.getElementById('gameModal').style.display = "block";
     }
 
     document.querySelector('.close-btn').onclick = () => {
         document.getElementById('gameModal').style.display = "none";
         document.getElementById('gameFrame').src = "";
-        document.body.style.overflow = "auto";
     };
 
-    document.getElementById('searchInput').oninput = (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = allGames.filter(g => g.title.toLowerCase().includes(term));
-        displayGames(filtered);
-    };
-
-    window.onclick = (event) => {
-        const modal = document.getElementById('gameModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
-            document.getElementById('gameFrame').src = "";
-            document.body.style.overflow = "auto";
-        }
-    }
-
-    fetchGames();
+    displayGames();
 </script>
-
 </body>
 </html>
