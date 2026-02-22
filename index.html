@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameHub - Milhares de Jogos</title>
+    <title>GameHub - Total Explorer</title>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5775678596507244" crossorigin="anonymous"></script>
     <script>
         window.adsbygoogle = window.adsbygoogle || [];
         const adBreak = adConfig = function(o) {adsbygoogle.push(o);}
-        adConfig({ preloadAdBreaks: 'on' }); // Prepara os anúncios
+        adConfig({ preloadAdBreaks: 'on' });
     </script>
 
     <style>
@@ -20,59 +20,72 @@
             --text: #c9d1d9;
             --accent: #58a6ff;
         }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; }
         
         .navbar { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 12px 5%; 
-            background: var(--nav); 
-            border-bottom: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 12px 5%; background: var(--nav); border-bottom: 1px solid var(--border); 
             position: sticky; top: 0; z-index: 100; 
         }
 
-        .logo { font-weight: bold; font-size: 1.2rem; }
-        .logo span { color: var(--accent); }
+        .search-bar input {
+            padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border);
+            background: var(--bg); color: white; width: 220px;
+        }
+
+        .categories {
+            display: flex; gap: 10px; padding: 15px 5%;
+            background: var(--bg); border-bottom: 1px solid var(--border);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: transparent; color: var(--text); border: 1px solid var(--border);
+            padding: 6px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap;
+        }
+        .cat-btn.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
 
         .game-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 20px; 
-            padding: 25px 5%; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 15px; padding: 20px 5%; 
         }
-
         .game-card { 
-            background: var(--nav); 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            overflow: hidden; 
-            cursor: pointer; 
-            transition: 0.2s; 
+            background: var(--nav); border-radius: 8px; border: 1px solid var(--border); 
+            overflow: hidden; cursor: pointer; transition: 0.2s; 
         }
-
         .game-card:hover { transform: translateY(-5px); border-color: #8b949e; }
         .game-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        
-        .game-info { padding: 10px; font-size: 0.85rem; text-align: center; font-weight: 500; }
+        .game-info { padding: 8px; font-size: 0.8rem; text-align: center; }
 
-        /* Modal do Player */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
         #gameFrame { width: 100%; height: 100%; border: none; }
         .close-btn { position: absolute; top: 15px; right: 25px; font-size: 40px; color: white; cursor: pointer; z-index: 1001; }
         
-        #loader { grid-column: 1/-1; text-align: center; padding: 50px; color: var(--accent); }
+        #loader { grid-column: 1/-1; text-align: center; padding: 50px; }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="logo">GAME<span>HUB</span></div>
-    <div style="font-size: 0.7rem; color: #8b949e;">Powered by Google H5 Ads</div>
+    <div style="font-weight: bold; font-size: 1.2rem;">GAME<span style="color:var(--accent)">HUB</span></div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Pesquisar em todos os jogos...">
+    </div>
 </nav>
 
+<div class="categories" id="catList">
+    <button class="cat-btn active" onclick="filterGenre('All', this)">Todos</button>
+    <button class="cat-btn" onclick="filterGenre('Action', this)">Ação</button>
+    <button class="cat-btn" onclick="filterGenre('Adventure', this)">Aventura</button>
+    <button class="cat-btn" onclick="filterGenre('Puzzle', this)">Puzzle</button>
+    <button class="cat-btn" onclick="filterGenre('Racing', this)">Corrida</button>
+    <button class="cat-btn" onclick="filterGenre('Sports', this)">Esportes</button>
+    <button class="cat-btn" onclick="filterGenre('Shooting', this)">Tiro</button>
+</div>
+
 <main class="game-grid" id="gameGrid">
-    <div id="loader">Buscando jogos no catálogo...</div>
+    <div id="loader">Carregando biblioteca completa...</div>
 </main>
 
 <div id="gameModal" class="modal">
@@ -81,25 +94,29 @@
 </div>
 
 <script>
-    // SEU FEED DO GAMEMONETIZE
-    const FEED_URL = "https://gamemonetize.com/feed.php?format=0&name=Sim&num=50&page=1";
+    // Link com todos os jogos (sem limite de num=50)
+    const FEED_URL = "https://gamemonetize.com/feed.php?format=0&name=Sim&page=1";
     const grid = document.getElementById('gameGrid');
     let allGames = [];
 
     async function fetchGames() {
         try {
             const response = await fetch(FEED_URL);
-            const data = await response.json();
-            allGames = data;
+            allGames = await response.json();
             renderGames(allGames);
         } catch (error) {
-            grid.innerHTML = "<p>Erro ao carregar o feed. Verifique se o link do GameMonetize está ativo.</p>";
+            grid.innerHTML = "<p>Erro ao carregar os jogos. Tente recarregar a página.</p>";
         }
     }
 
     function renderGames(games) {
         grid.innerHTML = '';
-        games.forEach(game => {
+        if(games.length === 0) {
+            grid.innerHTML = "<p>Nenhum jogo encontrado.</p>";
+            return;
+        }
+        // Exibindo uma grande quantidade de jogos da lista
+        games.slice(0, 1000).forEach(game => {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.onclick = () => launchGame(game.url);
@@ -111,14 +128,33 @@
         });
     }
 
+    // PESQUISA EM TEMPO REAL
+    document.getElementById('searchInput').oninput = (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allGames.filter(g => g.title.toLowerCase().includes(term));
+        renderGames(filtered);
+    };
+
+    // FILTRO DE ABAS (CATEGORIAS)
+    function filterGenre(genre, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if(genre === 'All') {
+            renderGames(allGames);
+        } else {
+            const filtered = allGames.filter(g => g.category && g.category.includes(genre));
+            renderGames(filtered);
+        }
+    }
+
     function launchGame(url) {
-        // DISPARA O ANÚNCIO DO GOOGLE ANTES DO JOGO
+        // Aciona anúncio do Google H5 Ads antes do jogo
         adBreak({
             type: 'start',
-            name: 'play-btn',
-            beforeAd: () => { console.log('Ad starting'); },
-            afterAd: () => { openModal(url); }, // Abre o jogo após o anúncio
-            adBreakDone: () => { openModal(url); } 
+            name: 'play',
+            afterAd: () => openModal(url),
+            adBreakDone: () => openModal(url)
         });
     }
 
@@ -129,6 +165,7 @@
     }
 
     function closeGame() {
+        document.getElementById('modal').style.display = "none"; // Correção para o ID correto
         document.getElementById('gameModal').style.display = "none";
         document.getElementById('gameFrame').src = "";
         document.body.style.overflow = "auto";
@@ -136,6 +173,5 @@
 
     fetchGames();
 </script>
-
 </body>
 </html>
