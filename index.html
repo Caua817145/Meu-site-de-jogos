@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameHub - Pro</title>
+    <title>GameHub - Jogos Online</title>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5775678596507244" crossorigin="anonymous"></script>
     <script>
@@ -17,15 +17,15 @@
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; }
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 5%; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .logo { font-weight: bold; font-size: 1.2rem; }
-        .search-bar input { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; width: 180px; }
+        .search-bar input { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; width: 150px; }
         .categories { display: flex; gap: 10px; padding: 15px 5%; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
-        .cat-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .cat-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 12px; }
         .cat-btn.active { background: var(--accent); color: #000; font-weight: bold; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px 5%; }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; padding: 20px 5%; }
         .game-card { background: var(--nav); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: 0.2s; }
-        .game-card:hover { transform: translateY(-5px); border-color: #8b949e; }
+        .game-card:hover { transform: translateY(-3px); border-color: var(--accent); }
         .game-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
-        .game-info { padding: 8px; font-size: 0.75rem; text-align: center; }
+        .game-info { padding: 8px; font-size: 0.7rem; text-align: center; }
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
         #gameFrame { width: 100%; height: 100%; border: none; }
         .close-btn { position: absolute; top: 10px; right: 20px; font-size: 40px; color: white; cursor: pointer; z-index: 1001; }
@@ -46,9 +46,7 @@
     <button class="cat-btn" onclick="filterGenre('Shooting', this)">Tiro</button>
 </div>
 
-<main class="game-grid" id="gameGrid">
-    <div id="status" style="grid-column: 1/-1; text-align: center; padding: 50px;">Carregando biblioteca completa...</div>
-</main>
+<main class="game-grid" id="gameGrid"><div style="grid-column: 1/-1; text-align: center; padding: 50px;">Carregando jogos...</div></main>
 
 <div id="gameModal" class="modal">
     <span class="close-btn" onclick="closeGame()">&times;</span>
@@ -56,8 +54,9 @@
 </div>
 
 <script>
+    // Link direto do seu feed com milhares de jogos
     const FEED_URL = "https://gamemonetize.com/feed.php?format=0&name=Sim&page=1";
-    // Proxy mais robusto para Vercel
+    // Proxy AllOrigins para evitar o erro de site sumir ou travar
     const PROXY = "https://api.allorigins.win/raw?url=";
     
     const grid = document.getElementById('gameGrid');
@@ -65,58 +64,40 @@
 
     async function fetchGames() {
         try {
-            // Tenta carregar usando o proxy para evitar erro de CORS
             const response = await fetch(PROXY + encodeURIComponent(FEED_URL));
-            if (!response.ok) throw new Error('Erro na rede');
-            
             allGames = await response.json();
-            
-            if (allGames && allGames.length > 0) {
-                renderGames(allGames);
-            } else {
-                grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Nenhum jogo encontrado no feed.</div>";
-            }
+            renderGames(allGames);
         } catch (error) {
-            console.error(error);
-            grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Erro de conexão. Tente recarregar a página ou use outro navegador.</div>";
+            grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Erro de conexão. Recarregue a página.</div>";
         }
     }
 
     function renderGames(games) {
         grid.innerHTML = '';
-        // Mostra os primeiros 300 jogos para não travar o celular
         games.slice(0, 300).forEach(game => {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.onclick = () => launchGame(game.url);
-            card.innerHTML = `
-                <img src="${game.thumb}" alt="${game.title}" loading="lazy">
-                <div class="game-info">${game.title}</div>
-            `;
+            card.innerHTML = `<img src="${game.thumb}" loading="lazy"><div class="game-info">${game.title}</div>`;
             grid.appendChild(card);
         });
     }
 
     function launchGame(url) {
-        // Aciona o Google Ads antes do jogo
+        // Mostra anúncio do Google antes do jogo
         adBreak({
             type: 'start',
-            name: 'play-game',
+            name: 'play',
             afterAd: () => openModal(url),
             adBreakDone: () => openModal(url)
         });
-        
-        // Se o anúncio demorar mais de 1.5s, abre o jogo direto
-        setTimeout(() => {
-            if (document.getElementById('gameModal').style.display !== "block") openModal(url);
-        }, 1500);
+        // Força abertura em caso de erro no anúncio
+        setTimeout(() => { if(document.getElementById('gameModal').style.display !== "block") openModal(url); }, 1500);
     }
 
     function openModal(url) {
-        const modal = document.getElementById('gameModal');
-        const frame = document.getElementById('gameFrame');
-        frame.src = url;
-        modal.style.display = "block";
+        document.getElementById('gameFrame').src = url;
+        document.getElementById('gameModal').style.display = "block";
         document.body.style.overflow = "hidden";
     }
 
@@ -126,7 +107,6 @@
         document.body.style.overflow = "auto";
     }
 
-    // Filtro e Pesquisa
     document.getElementById('searchInput').oninput = (e) => {
         const term = e.target.value.toLowerCase();
         renderGames(allGames.filter(g => g.title.toLowerCase().includes(term)));
