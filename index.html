@@ -14,27 +14,27 @@
 
     <style>
         :root { --bg: #0d1117; --nav: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; overflow-x: hidden; }
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 5%; background: var(--nav); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .search-bar input { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; width: 220px; }
-        .categories { display: flex; gap: 10px; padding: 15px 5%; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        .search-bar input { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; width: 180px; }
+        .categories { display: flex; gap: 10px; padding: 15px 5%; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
         .cat-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 6px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
         .cat-btn.active { background: var(--accent); color: #000; font-weight: bold; }
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px 5%; }
-        .game-card { background: var(--nav); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: 0.2s; }
+        .game-card { background: var(--nav); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: 0.2s; position: relative; }
         .game-card:hover { transform: translateY(-5px); border-color: #8b949e; }
-        .game-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .game-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
         .game-info { padding: 8px; font-size: 0.75rem; text-align: center; }
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
         #gameFrame { width: 100%; height: 100%; border: none; }
-        .close-btn { position: absolute; top: 10px; right: 20px; font-size: 40px; color: white; cursor: pointer; z-index: 1001; }
+        .close-btn { position: absolute; top: 10px; right: 20px; font-size: 45px; color: white; cursor: pointer; z-index: 1001; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div style="font-weight: bold;">GAME<span style="color:var(--accent)">HUB</span></div>
-    <div class="search-bar"><input type="text" id="searchInput" placeholder="Buscar jogos..."></div>
+    <div style="font-weight: bold; font-size: 1.2rem;">GAME<span style="color:var(--accent)">HUB</span></div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Buscar..."></div>
 </nav>
 
 <div class="categories">
@@ -45,7 +45,9 @@
     <button class="cat-btn" onclick="filterGenre('Puzzle', this)">Puzzle</button>
 </div>
 
-<main class="game-grid" id="gameGrid"><div style="padding:50px; text-align:center; grid-column:1/-1;">Carregando jogos...</div></main>
+<main class="game-grid" id="gameGrid">
+    <div id="loadingMsg" style="grid-column: 1/-1; text-align: center; padding: 50px;">Carregando biblioteca de jogos...</div>
+</main>
 
 <div id="gameModal" class="modal">
     <span class="close-btn" onclick="closeGame()">&times;</span>
@@ -53,54 +55,72 @@
 </div>
 
 <script>
-    // Proxy para evitar erro de carregamento (CORS)
-    const FEED_URL = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://gamemonetize.com/feed.php?format=0&name=Sim&page=1");
+    // Link direto do feed (tentativa de carregamento direto primeiro)
+    const ORIGINAL_FEED = "https://gamemonetize.com/feed.php?format=0&name=Sim&page=1";
+    // Proxy reserva caso o direto falhe
+    const PROXY_FEED = "https://api.allorigins.win/get?url=" + encodeURIComponent(ORIGINAL_FEED);
+    
     const grid = document.getElementById('gameGrid');
     let allGames = [];
 
     async function fetchGames() {
         try {
-            const response = await fetch(FEED_URL);
+            // Tenta carregar via proxy que é mais garantido para evitar erro de CORS no Vercel
+            const response = await fetch(PROXY_FEED);
             const data = await response.json();
-            allGames = JSON.parse(data.contents); // Decodifica o conteúdo do proxy
-            renderGames(allGames);
+            allGames = typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents;
+            
+            if (allGames && allGames.length > 0) {
+                renderGames(allGames);
+            } else {
+                throw new Error("Lista vazia");
+            }
         } catch (error) {
-            grid.innerHTML = "Erro ao carregar jogos. Tente desativar o AdBlock.";
+            console.error("Erro ao carregar:", error);
+            grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Erro ao carregar jogos. Verifique sua conexão ou desative o AdBlock para testar.</div>";
         }
     }
 
     function renderGames(games) {
         grid.innerHTML = '';
-        games.slice(0, 300).forEach(game => {
+        games.slice(0, 200).forEach(game => {
             const card = document.createElement('div');
             card.className = 'game-card';
+            // Importante: garantir que o clique funcione
             card.onclick = () => launchGame(game.url);
-            card.innerHTML = `<img src="${game.thumb}"><div class="game-info">${game.title}</div>`;
+            card.innerHTML = `
+                <img src="${game.thumb}" alt="${game.title}">
+                <div class="game-info">${game.title}</div>
+            `;
             grid.appendChild(card);
         });
     }
 
     function launchGame(url) {
-        // Tenta rodar o anúncio, se falhar ou terminar, abre o jogo
-        try {
-            adBreak({
-                type: 'start',
-                name: 'play',
-                beforeAd: () => console.log("Ad"),
-                afterAd: () => openModal(url),
-                adBreakDone: () => openModal(url)
-            });
-        } catch (e) {
-            openModal(url); // Se o Google Ads der erro, abre o jogo direto
-        }
+        // Tenta rodar o anúncio do Google, mas abre o jogo de qualquer forma
+        adBreak({
+            type: 'start',
+            name: 'play',
+            afterAd: () => openModal(url),
+            adBreakDone: () => openModal(url)
+        });
+        
+        // Backup: se o adBreak não disparar o openModal em 1 segundo, força a abertura
+        setTimeout(() => {
+            if (document.getElementById('gameModal').style.display !== "block") {
+                openModal(url);
+            }
+        }, 1200);
     }
 
     function openModal(url) {
         const modal = document.getElementById('gameModal');
         const frame = document.getElementById('gameFrame');
-        frame.src = url;
-        modal.style.display = "block";
-        document.body.style.overflow = "hidden";
+        if (frame.src !== url) {
+            frame.src = url;
+            modal.style.display = "block";
+            document.body.style.overflow = "hidden";
+        }
     }
 
     function closeGame() {
@@ -109,18 +129,25 @@
         document.body.style.overflow = "auto";
     }
 
-    // Pesquisa
+    // Pesquisa em tempo real
     document.getElementById('searchInput').oninput = (e) => {
         const term = e.target.value.toLowerCase();
-        renderGames(allGames.filter(g => g.title.toLowerCase().includes(term)));
+        const filtered = allGames.filter(g => g.title.toLowerCase().includes(term));
+        renderGames(filtered);
     };
 
     function filterGenre(genre, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        renderGames(genre === 'All' ? allGames : allGames.filter(g => g.category.includes(genre)));
+        if (genre === 'All') {
+            renderGames(allGames);
+        } else {
+            const filtered = allGames.filter(g => g.category && g.category.includes(genre));
+            renderGames(filtered);
+        }
     }
 
+    // Iniciar carregamento
     fetchGames();
 </script>
 </body>
