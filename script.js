@@ -1,4 +1,4 @@
-const API_URL = 'https://games.gamepix.com/games?sid=99479'; // Substitua pelo seu SID da GamePix se tiver
+const API_URL = 'https://games.gamepix.com/games?sid=T6E10'; // Substitua pelo seu SID da GamePix se tiver
 const grid = document.getElementById('gameGrid');
 let allGames = [];
 
